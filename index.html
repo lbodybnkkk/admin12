@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة تحكم العطور</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="logo">عطر<span>ية</span> – admin</div>
+    <a href="index.html" style="color: #666; text-decoration: none; font-weight: 600;">الرئيسية</a>
+  </header>
+
+  <div class="admin-panel">
+    <h2>📦 إدارة المنتجات</h2>
+
+    <!-- نموذج إضافة منتج -->
+    <form id="addProductForm" class="add-product-form">
+      <input type="text" id="prodName" placeholder="اسم المنتج" required>
+      <input type="number" id="prodPrice" placeholder="السعر الأصلي" required>
+      <input type="number" id="prodSalePrice" placeholder="سعر الخصم (للقطعة الواحدة)" required>
+      <input type="text" id="prodImages" placeholder="روابط الصور (مفصولة بفاصلة)" required>
+      <textarea id="prodDesc" placeholder="الوصف" rows="3"></textarea>
+      <select id="prodCategory"></select>
+      <div style="grid-column: span 2; display: flex; gap: 10px; align-items: center;">
+        <label>خصومات الكمية (مثال: 1=449, 2=400):</label>
+        <input type="text" id="quantityDiscounts" placeholder="مثال: 1=449,2=400,3=380">
+      </div>
+      <button type="submit">➕ إضافة منتج</button>
+    </form>
+    <hr style="margin: 50px 0;">
+<h2>📋 إدارة الطلبات</h2>
+<div id="ordersList" style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px;"></div>
+
+    <!-- قائمة المنتجات -->
+    <div class="products-list" id="productsList"></div>
+
+    <hr style="margin: 50px 0;">
+
+    <h2>📂 إدارة الأقسام</h2>
+    <form id="addCategoryForm" class="add-product-form" style="grid-template-columns: 1fr 1fr;">
+      <input type="text" id="catName" placeholder="اسم القسم" required>
+      <input type="text" id="catImage" placeholder="رابط صورة القسم" required>
+      <button type="submit" style="grid-column: span 2;">➕ إضافة قسم</button>
+    </form>
+    <div id="categoriesList" style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 20px;"></div>
+  </div>
+
+  <script type="module">
+    import { db, ref, set, push, onValue, remove, update } from './config.js';
+    import { auth, onAuthStateChanged, signOut } from './config.js';
+
+// التحقق من تسجيل الدخول
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = 'login.html';
+  }
+});
+
+// زر تسجيل الخروج (أضفه في مكان مناسب في الواجهة)
+// يمكنك إضافته في الهيدر مثلاً
+const logoutBtn = document.createElement('button');
+logoutBtn.textContent = 'تسجيل الخروج';
+logoutBtn.style.cssText = 'background: #ff6b6b; color: white; border: none; padding: 8px 20px; border-radius: 30px; cursor: pointer; font-weight: 600;';
+logoutBtn.addEventListener('click', async () => {
+  await signOut(auth);
+  window.location.href = 'login.html';
+});
+document.querySelector('header').appendChild(logoutBtn);
+
+    // تحميل الأقسام في القائمة المنسدلة
+    const categorySelect = document.getElementById('prodCategory');
+    const categoriesListDiv = document.getElementById('categoriesList');
+
+    onValue(ref(db, 'categories'), (snapshot) => {
+      const data = snapshot.val();
+      categorySelect.innerHTML = '';
+      categoriesListDiv.innerHTML = '';
+      if (data) {
+        Object.keys(data).forEach(key => {
+          const cat = data[key];
+          // خيارات القائمة
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = cat.name;
+          categorySelect.appendChild(option);
+
+          // عرض الأقسام مع زر حذف
+          const catDiv = document.createElement('div');
+          catDiv.style.cssText = 'background: white; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 10px;';
+          catDiv.innerHTML = `
+            <img src="${cat.image || 'images/default-category.jpg'}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;">
+            <span>${cat.name}</span>
+            <button data-id="${key}" class="delete-cat-btn" style="background:#ff6b6b;color:white;border:none;border-radius:6px;padding:4px 12px;cursor:pointer;">حذف</button>
+          `;
+          categoriesListDiv.appendChild(catDiv);
+        });
+        // إضافة مستمعي حذف للأقسام
+        document.querySelectorAll('.delete-cat-btn').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            if (confirm('هل أنت متأكد من حذف هذا القسم؟')) {
+              await remove(ref(db, `categories/${btn.dataset.id}`));
+            }
+          });
+        });
+      }
+    });
+
+    // إضافة قسم جديد
+    document.getElementById('addCategoryForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('catName').value;
+      const image = document.getElementById('catImage').value;
+      if (name && image) {
+        const newCatRef = push(ref(db, 'categories'));
+        await set(newCatRef, { name, image });
+        document.getElementById('catName').value = '';
+        document.getElementById('catImage').value = '';
+        alert('تم إضافة القسم');
+      }
+    });
+
+    // تحميل المنتجات وعرضها
+    const productsListDiv = document.getElementById('productsList');
+
+    function loadProducts() {
+      onValue(ref(db, 'products'), (snapshot) => {
+        const data = snapshot.val();
+        productsListDiv.innerHTML = '';
+        if (data) {
+          Object.keys(data).forEach(key => {
+            const prod = data[key];
+            const div = document.createElement('div');
+            div.className = 'product-item';
+            div.innerHTML = `
+              <img src="${prod.images?.[0] || 'images/default.jpg'}" alt="${prod.name}">
+              <strong>${prod.name}</strong>
+              <span>${prod.salePrice || prod.price} ج.م</span>
+              <div style="display:flex; gap:8px;">
+                <button class="edit-btn" data-id="${key}">تعديل</button>
+                <button class="delete-btn" data-id="${key}">حذف</button>
+              </div>
+            `;
+            productsListDiv.appendChild(div);
+          });
+
+          // مستمعي الحذف
+          document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+              if (confirm('تأكيد حذف المنتج؟')) {
+                await remove(ref(db, `products/${btn.dataset.id}`));
+                loadProducts(); // إعادة تحميل القائمة
+              }
+            });
+          });
+
+          // مستمعي التعديل (تعبئة النموذج)
+          document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const id = btn.dataset.id;
+              const prod = data[id];
+              document.getElementById('prodName').value = prod.name || '';
+              document.getElementById('prodPrice').value = prod.price || '';
+              document.getElementById('prodSalePrice').value = prod.salePrice || '';
+              document.getElementById('prodImages').value = prod.images?.join(',') || '';
+              document.getElementById('prodDesc').value = prod.description || '';
+              document.getElementById('prodCategory').value = prod.categoryId || '';
+              // خصومات الكمية
+              if (prod.quantityDiscounts) {
+                const str = Object.entries(prod.quantityDiscounts).map(([k,v]) => `${k}=${v}`).join(',');
+                document.getElementById('quantityDiscounts').value = str;
+              }
+              // تغيير زر الإضافة إلى "تحديث"
+              const submitBtn = document.querySelector('#addProductForm button[type="submit"]');
+              submitBtn.textContent = '🔄 تحديث المنتج';
+              submitBtn.dataset.editId = id;
+            });
+          });
+        } else {
+          productsListDiv.innerHTML = '<p style="grid-column:1/-1;">لا توجد منتجات</p>';
+        }
+      });
+    }
+    loadProducts();
+
+    // إضافة / تحديث منتج
+    document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('prodName').value;
+      const price = parseFloat(document.getElementById('prodPrice').value);
+      const salePrice = parseFloat(document.getElementById('prodSalePrice').value);
+      const images = document.getElementById('prodImages').value.split(',').map(s => s.trim()).filter(Boolean);
+      const description = document.getElementById('prodDesc').value;
+      const categoryId = document.getElementById('prodCategory').value;
+      const discountStr = document.getElementById('quantityDiscounts').value;
+      const quantityDiscounts = {};
+      if (discountStr) {
+        discountStr.split(',').forEach(pair => {
+          const [qty, val] = pair.split('=');
+          if (qty && val) quantityDiscounts[parseInt(qty)] = parseFloat(val);
+        });
+      }
+
+      const productData = {
+        name,
+        price,
+        salePrice,
+        images,
+        description,
+        categoryId,
+        quantityDiscounts
+      };
+
+      const submitBtn = document.querySelector('#addProductForm button[type="submit"]');
+      const editId = submitBtn.dataset.editId;
+
+      if (editId) {
+        // تحديث
+        await update(ref(db, `products/${editId}`), productData);
+        submitBtn.textContent = '➕ إضافة منتج';
+        delete submitBtn.dataset.editId;
+        alert('تم تحديث المنتج');
+      } else {
+        // إضافة جديدة
+        const newRef = push(ref(db, 'products'));
+        await set(newRef, productData);
+        alert('تم إضافة المنتج');
+      }
+
+      // إعادة تحميل القائمة ومسح الحقول
+      loadProducts();
+      document.getElementById('addProductForm').reset();
+    });
+    // === إدارة الطلبات ===
+const ordersListDiv = document.getElementById('ordersList');
+
+function loadOrders() {
+  onValue(ref(db, 'orders'), (snapshot) => {
+    const data = snapshot.val();
+    ordersListDiv.innerHTML = '';
+    if (data) {
+      // ترتيب الطلبات من الأحدث للأقدم
+      const sortedKeys = Object.keys(data).sort((a, b) => {
+        return new Date(data[b].createdAt) - new Date(data[a].createdAt);
+      });
+      
+      sortedKeys.forEach(key => {
+        const order = data[key];
+        const statusLabels = {
+          pending: '⏳ قيد المراجعة',
+          shipped: '🚚 تم الشحن'
+        };
+        const statusColor = {
+          pending: '#f59e0b',
+          shipped: '#10b981'
+        };
+        
+        const div = document.createElement('div');
+        div.style.cssText = 'background: white; padding: 20px; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 15px; align-items: center;';
+        div.innerHTML = `
+          <div>
+            <strong>${order.customerName}</strong>
+            <div style="font-size: 14px; color: #666;">${order.productName} × ${order.quantity}</div>
+            <div style="font-size: 14px; color: #666;">📞 ${order.phone}</div>
+            <div style="font-size: 14px; color: #666;">📍 ${order.address}</div>
+            ${order.notes ? `<div style="font-size: 14px; color: #888;">📝 ${order.notes}</div>` : ''}
+          </div>
+          <div style="font-weight: 700;">${order.totalPrice} ج.م</div>
+          <div>
+            <select data-id="${key}" class="order-status-select" style="padding: 6px 12px; border-radius: 20px; border: 2px solid ${statusColor[order.status] || '#ddd'}; background: ${statusColor[order.status] || '#f8f8f8'}20; font-weight: 600; color: ${statusColor[order.status] || '#333'};">
+              <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>⏳ قيد المراجعة</option>
+              <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>🚚 تم الشحن</option>
+            </select>
+          </div>
+          <div style="font-size: 13px; color: #999;">${new Date(order.createdAt).toLocaleString('ar-EG')}</div>
+          <button data-id="${key}" class="delete-order-btn" style="background: #ff6b6b; color: white; border: none; border-radius: 8px; padding: 6px 14px; cursor: pointer;">🗑️</button>
+        `;
+        ordersListDiv.appendChild(div);
+      });
+
+      // مستمعي تغيير الحالة
+      document.querySelectorAll('.order-status-select').forEach(select => {
+        select.addEventListener('change', async (e) => {
+          const id = e.target.dataset.id;
+          const newStatus = e.target.value;
+          await update(ref(db, `orders/${id}`), { status: newStatus });
+        });
+      });
+
+      // مستمعي حذف الطلب
+      document.querySelectorAll('.delete-order-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          if (confirm('تأكيد حذف هذا الطلب؟')) {
+            await remove(ref(db, `orders/${btn.dataset.id}`));
+          }
+        });
+      });
+    } else {
+      ordersListDiv.innerHTML = '<p style="grid-column:1/-1; text-align:center; color: #999;">لا توجد طلبات حالياً</p>';
+    }
+  });
+}
+
+loadOrders();
+  </script>
+</body>
+</html>
