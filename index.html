@@ -1,309 +1,1602 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لوحة تحكم العطور</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CMD Fragrances</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Glassmorphism utilities */
+        .glass {
+            background: rgba(11, 12, 16, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+        }
+        .glass-light {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(212, 175, 55, 0.08);
+        }
+        .text-gold {
+            color: #d4af37;
+        }
+        .border-gold {
+            border-color: #d4af37;
+        }
+        .bg-gold {
+            background-color: #d4af37;
+        }
+        .bg-gold-dark {
+            background-color: #b8962e;
+        }
+        .text-neon-purple {
+            color: #b44dff;
+        }
+        .bg-neon-purple {
+            background-color: #b44dff;
+        }
+        .shadow-glow-gold {
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.15);
+        }
+        .shadow-glow-purple {
+            box-shadow: 0 0 40px rgba(180, 77, 255, 0.2);
+        }
+        body {
+            background-color: #0B0C10;
+            color: #f0ece4;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            scroll-behavior: smooth;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0C10;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d4af37;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b8962e;
+        }
+        /* Smooth transitions */
+        * {
+            transition: all 0.25s ease;
+        }
+        /* Product card hover */
+        .product-card {
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.08);
+        }
+        /* Sidebar scroll */
+        .sidebar-scroll::-webkit-scrollbar {
+            width: 3px;
+        }
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: #d4af37;
+            border-radius: 2px;
+        }
+        /* Modal overlay */
+        .modal-overlay {
+            background: rgba(11, 12, 16, 0.85);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        /* Admin table row hover */
+        .admin-row:hover {
+            background: rgba(212, 175, 55, 0.04);
+        }
+        /* Cart slide-in */
+        .cart-slide {
+            transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        /* Button magnetic effect */
+        .magnetic-btn {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .magnetic-btn:hover {
+            transform: scale(1.06);
+        }
+        /* Hero text gradient */
+        .hero-gradient-text {
+            background: linear-gradient(135deg, #d4af37 0%, #f5e6a3 40%, #d4af37 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        /* Floating animation */
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-18px) rotate(2deg);
+            }
+        }
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        .float-animation-delayed {
+            animation: float 7s ease-in-out infinite 1s;
+        }
+        /* shimmer */
+        @keyframes shimmer {
+            0% {
+                background-position: -200% center;
+            }
+            100% {
+                background-position: 200% center;
+            }
+        }
+        .shimmer-text {
+            background: linear-gradient(90deg, #d4af37 20%, #f5e6a3 40%, #d4af37 60%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 4s linear infinite;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <div class="logo">عطر<span>ية</span> – admin</div>
-    <a href="index.html" style="color: #666; text-decoration: none; font-weight: 600;">الرئيسية</a>
-  </header>
+    <div id="root"></div>
 
-  <div class="admin-panel">
-    <h2>📦 إدارة المنتجات</h2>
-
-    <!-- نموذج إضافة منتج -->
-    <form id="addProductForm" class="add-product-form">
-      <input type="text" id="prodName" placeholder="اسم المنتج" required>
-      <input type="number" id="prodPrice" placeholder="السعر الأصلي" required>
-      <input type="number" id="prodSalePrice" placeholder="سعر الخصم (للقطعة الواحدة)" required>
-      <input type="text" id="prodImages" placeholder="روابط الصور (مفصولة بفاصلة)" required>
-      <textarea id="prodDesc" placeholder="الوصف" rows="3"></textarea>
-      <select id="prodCategory"></select>
-      <div style="grid-column: span 2; display: flex; gap: 10px; align-items: center;">
-        <label>خصومات الكمية (مثال: 1=449, 2=400):</label>
-        <input type="text" id="quantityDiscounts" placeholder="مثال: 1=449,2=400,3=380">
-      </div>
-      <button type="submit">➕ إضافة منتج</button>
-    </form>
-    <hr style="margin: 50px 0;">
-<h2>📋 إدارة الطلبات</h2>
-<div id="ordersList" style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px;"></div>
-
-    <!-- قائمة المنتجات -->
-    <div class="products-list" id="productsList"></div>
-
-    <hr style="margin: 50px 0;">
-
-    <h2>📂 إدارة الأقسام</h2>
-    <form id="addCategoryForm" class="add-product-form" style="grid-template-columns: 1fr 1fr;">
-      <input type="text" id="catName" placeholder="اسم القسم" required>
-      <input type="text" id="catImage" placeholder="رابط صورة القسم" required>
-      <button type="submit" style="grid-column: span 2;">➕ إضافة قسم</button>
-    </form>
-    <div id="categoriesList" style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 20px;"></div>
-  </div>
-
-  <script type="module">
-    import { db, ref, set, push, onValue, remove, update } from './config.js';
-    import { auth, onAuthStateChanged, signOut } from './config.js';
-
-// التحقق من تسجيل الدخول
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = 'login.html';
-  }
-});
-
-// زر تسجيل الخروج (أضفه في مكان مناسب في الواجهة)
-// يمكنك إضافته في الهيدر مثلاً
-const logoutBtn = document.createElement('button');
-logoutBtn.textContent = 'تسجيل الخروج';
-logoutBtn.style.cssText = 'background: #ff6b6b; color: white; border: none; padding: 8px 20px; border-radius: 30px; cursor: pointer; font-weight: 600;';
-logoutBtn.addEventListener('click', async () => {
-  await signOut(auth);
-  window.location.href = 'login.html';
-});
-document.querySelector('header').appendChild(logoutBtn);
-
-    // تحميل الأقسام في القائمة المنسدلة
-    const categorySelect = document.getElementById('prodCategory');
-    const categoriesListDiv = document.getElementById('categoriesList');
-
-    onValue(ref(db, 'categories'), (snapshot) => {
-      const data = snapshot.val();
-      categorySelect.innerHTML = '';
-      categoriesListDiv.innerHTML = '';
-      if (data) {
-        Object.keys(data).forEach(key => {
-          const cat = data[key];
-          // خيارات القائمة
-          const option = document.createElement('option');
-          option.value = key;
-          option.textContent = cat.name;
-          categorySelect.appendChild(option);
-
-          // عرض الأقسام مع زر حذف
-          const catDiv = document.createElement('div');
-          catDiv.style.cssText = 'background: white; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 10px;';
-          catDiv.innerHTML = `
-            <img src="${cat.image || 'images/default-category.jpg'}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;">
-            <span>${cat.name}</span>
-            <button data-id="${key}" class="delete-cat-btn" style="background:#ff6b6b;color:white;border:none;border-radius:6px;padding:4px 12px;cursor:pointer;">حذف</button>
-          `;
-          categoriesListDiv.appendChild(catDiv);
-        });
-        // إضافة مستمعي حذف للأقسام
-        document.querySelectorAll('.delete-cat-btn').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            if (confirm('هل أنت متأكد من حذف هذا القسم؟')) {
-              await remove(ref(db, `categories/${btn.dataset.id}`));
+    <!-- React + Vite will mount here -->
+    <script type="importmap">
+        {
+            "imports": {
+                "react": "https://esm.sh/react@18.2.0",
+                "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+                "react-router-dom": "https://esm.sh/react-router-dom@6.20.0",
+                "framer-motion": "https://esm.sh/framer-motion@10.16.4",
+                "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime"
             }
-          });
-        });
-      }
-    });
-
-    // إضافة قسم جديد
-    document.getElementById('addCategoryForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('catName').value;
-      const image = document.getElementById('catImage').value;
-      if (name && image) {
-        const newCatRef = push(ref(db, 'categories'));
-        await set(newCatRef, { name, image });
-        document.getElementById('catName').value = '';
-        document.getElementById('catImage').value = '';
-        alert('تم إضافة القسم');
-      }
-    });
-
-    // تحميل المنتجات وعرضها
-    const productsListDiv = document.getElementById('productsList');
-
-    function loadProducts() {
-      onValue(ref(db, 'products'), (snapshot) => {
-        const data = snapshot.val();
-        productsListDiv.innerHTML = '';
-        if (data) {
-          Object.keys(data).forEach(key => {
-            const prod = data[key];
-            const div = document.createElement('div');
-            div.className = 'product-item';
-            div.innerHTML = `
-              <img src="${prod.images?.[0] || 'images/default.jpg'}" alt="${prod.name}">
-              <strong>${prod.name}</strong>
-              <span>${prod.salePrice || prod.price} ج.م</span>
-              <div style="display:flex; gap:8px;">
-                <button class="edit-btn" data-id="${key}">تعديل</button>
-                <button class="delete-btn" data-id="${key}">حذف</button>
-              </div>
-            `;
-            productsListDiv.appendChild(div);
-          });
-
-          // مستمعي الحذف
-          document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-              if (confirm('تأكيد حذف المنتج؟')) {
-                await remove(ref(db, `products/${btn.dataset.id}`));
-                loadProducts(); // إعادة تحميل القائمة
-              }
-            });
-          });
-
-          // مستمعي التعديل (تعبئة النموذج)
-          document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-              const id = btn.dataset.id;
-              const prod = data[id];
-              document.getElementById('prodName').value = prod.name || '';
-              document.getElementById('prodPrice').value = prod.price || '';
-              document.getElementById('prodSalePrice').value = prod.salePrice || '';
-              document.getElementById('prodImages').value = prod.images?.join(',') || '';
-              document.getElementById('prodDesc').value = prod.description || '';
-              document.getElementById('prodCategory').value = prod.categoryId || '';
-              // خصومات الكمية
-              if (prod.quantityDiscounts) {
-                const str = Object.entries(prod.quantityDiscounts).map(([k,v]) => `${k}=${v}`).join(',');
-                document.getElementById('quantityDiscounts').value = str;
-              }
-              // تغيير زر الإضافة إلى "تحديث"
-              const submitBtn = document.querySelector('#addProductForm button[type="submit"]');
-              submitBtn.textContent = '🔄 تحديث المنتج';
-              submitBtn.dataset.editId = id;
-            });
-          });
-        } else {
-          productsListDiv.innerHTML = '<p style="grid-column:1/-1;">لا توجد منتجات</p>';
         }
-      });
-    }
-    loadProducts();
+    </script>
 
-    // إضافة / تحديث منتج
-    document.getElementById('addProductForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('prodName').value;
-      const price = parseFloat(document.getElementById('prodPrice').value);
-      const salePrice = parseFloat(document.getElementById('prodSalePrice').value);
-      const images = document.getElementById('prodImages').value.split(',').map(s => s.trim()).filter(Boolean);
-      const description = document.getElementById('prodDesc').value;
-      const categoryId = document.getElementById('prodCategory').value;
-      const discountStr = document.getElementById('quantityDiscounts').value;
-      const quantityDiscounts = {};
-      if (discountStr) {
-        discountStr.split(',').forEach(pair => {
-          const [qty, val] = pair.split('=');
-          if (qty && val) quantityDiscounts[parseInt(qty)] = parseFloat(val);
-        });
-      }
+    <script type="module">
+        // ──────────────────────────────────────────────────────────────────────────────
+        //  STEP 1: PROJECT ARCHITECTURE & STATE — Full code in one module
+        //  (All React components, context, data, and routing in a single file
+        //   for copy‑paste readiness. In production, split into files.)
+        // ──────────────────────────────────────────────────────────────────────────────
 
-      const productData = {
-        name,
-        price,
-        salePrice,
-        images,
-        description,
-        categoryId,
-        quantityDiscounts
-      };
+        import React, {
+            createContext,
+            useContext,
+            useState,
+            useEffect,
+            useReducer,
+            useCallback,
+            useMemo,
+            useRef
+        } from 'react';
+        import { createRoot } from 'react-dom/client';
+        import {
+            BrowserRouter,
+            Routes,
+            Route,
+            Link,
+            Navigate,
+            useNavigate,
+            useParams,
+            useLocation
+        } from 'react-router-dom';
+        import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 
-      const submitBtn = document.querySelector('#addProductForm button[type="submit"]');
-      const editId = submitBtn.dataset.editId;
+        // ─── DATA: 20 Luxury Perfumes ──────────────────────────────────────────────
 
-      if (editId) {
-        // تحديث
-        await update(ref(db, `products/${editId}`), productData);
-        submitBtn.textContent = '➕ إضافة منتج';
-        delete submitBtn.dataset.editId;
-        alert('تم تحديث المنتج');
-      } else {
-        // إضافة جديدة
-        const newRef = push(ref(db, 'products'));
-        await set(newRef, productData);
-        alert('تم إضافة المنتج');
-      }
+        const INITIAL_PERFUMES = [{
+            id: 'p1',
+            name: 'Aventus',
+            brand: 'Creed',
+            price: 495,
+            concentration: 'EDP',
+            notes: ['Bergamot', 'Blackcurrant', 'Birch', 'Oakmoss'],
+            image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=400&h=400&fit=crop&crop=center',
+            stock: 12,
+            description: 'A fruity, woody fragrance with a bold, charismatic character.'
+        }, {
+            id: 'p2',
+            name: 'Noir de Noir',
+            brand: 'Tom Ford',
+            price: 395,
+            concentration: 'EDP',
+            notes: ['Truffle', 'Black Rose', 'Patchouli', 'Vanilla'],
+            image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&h=400&fit=crop&crop=center',
+            stock: 8,
+            description: 'Deep, dark, and sensual – a gothic rose masterpiece.'
+        }, {
+            id: 'p3',
+            name: 'Bleu de Chanel',
+            brand: 'Chanel',
+            price: 350,
+            concentration: 'EDP',
+            notes: ['Citrus', 'Mint', 'Ginger', 'Cedar'],
+            image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=400&h=400&fit=crop&crop=center',
+            stock: 20,
+            description: 'Fresh, clean, and sophisticated – the modern classic.'
+        }, {
+            id: 'p4',
+            name: 'Sauvage',
+            brand: 'Dior',
+            price: 320,
+            concentration: 'EDP',
+            notes: ['Bergamot', 'Ambroxan', 'Sichuan Pepper', 'Lavender'],
+            image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=400&h=400&fit=crop&crop=center',
+            stock: 15,
+            description: 'Wild, fresh, and magnetic – a fragrance of raw nature.'
+        }, {
+            id: 'p5',
+            name: 'Grand Soir',
+            brand: 'Maison Francis Kurkdjian',
+            price: 475,
+            concentration: 'EDP',
+            notes: ['Benzoin', 'Vanilla', 'Amber', 'Labdanum'],
+            image: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&h=400&fit=crop&crop=center',
+            stock: 6,
+            description: 'A warm, amber glow that radiates elegance and depth.'
+        }, {
+            id: 'p6',
+            name: 'Portrait of a Lady',
+            brand: 'Frédéric Malle',
+            price: 425,
+            concentration: 'EDP',
+            notes: ['Rose', 'Clove', 'Patchouli', 'Sandalwood'],
+            image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=400&h=400&fit=crop&crop=center',
+            stock: 9,
+            description: 'A majestic rose scent with a mysterious, spicy heart.'
+        }, {
+            id: 'p7',
+            name: 'Tobacco Vanille',
+            brand: 'Tom Ford',
+            price: 415,
+            concentration: 'EDP',
+            notes: ['Tobacco', 'Vanilla', 'Cocoa', 'Ginger'],
+            image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&h=400&fit=crop&crop=center',
+            stock: 11,
+            description: 'Rich, warm, and intoxicating – a modern classic.'
+        }, {
+            id: 'p8',
+            name: 'L\'Immensité',
+            brand: 'Louis Vuitton',
+            price: 465,
+            concentration: 'EDP',
+            notes: ['Ginger', 'Incense', 'Amber', 'Sandalwood'],
+            image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=400&h=400&fit=crop&crop=center',
+            stock: 7,
+            description: 'A radiant, spicy fragrance that captures the essence of light.'
+        }, {
+            id: 'p9',
+            name: 'Naxos',
+            brand: 'Xerjoff',
+            price: 450,
+            concentration: 'EDP',
+            notes: ['Honey', 'Tobacco', 'Lavender', 'Vanilla'],
+            image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=400&h=400&fit=crop&crop=center',
+            stock: 5,
+            description: 'A Sicilian masterpiece of honeyed tobacco and lavender.'
+        }, {
+            id: 'p10',
+            name: 'Ganymede',
+            brand: 'Marc-Antoine Barrois',
+            price: 385,
+            concentration: 'EDP',
+            notes: ['Mineral', 'Immortelle', 'Saffron', 'Leather'],
+            image: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&h=400&fit=crop&crop=center',
+            stock: 10,
+            description: 'A futuristic, mineral scent that defies convention.'
+        }, {
+            id: 'p11',
+            name: 'Ani',
+            brand: 'Nishane',
+            price: 430,
+            concentration: 'EDP',
+            notes: ['Cardamom', 'Ginger', 'Vanilla', 'Cedar'],
+            image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=400&h=400&fit=crop&crop=center',
+            stock: 8,
+            description: 'A spicy, aromatic journey through the Orient.'
+        }, {
+            id: 'p12',
+            name: 'Silver Mountain Water',
+            brand: 'Creed',
+            price: 480,
+            concentration: 'EDP',
+            notes: ['Bergamot', 'Green Tea', 'Blackcurrant', 'Sandalwood'],
+            image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&h=400&fit=crop&crop=center',
+            stock: 14,
+            description: 'Crisp, fresh, and invigorating like alpine streams.'
+        }, {
+            id: 'p13',
+            name: 'Oud Wood',
+            brand: 'Tom Ford',
+            price: 375,
+            concentration: 'EDP',
+            notes: ['Oud', 'Sandalwood', 'Tonka Bean', 'Amber'],
+            image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=400&h=400&fit=crop&crop=center',
+            stock: 9,
+            description: 'A smoky, woody scent that commands attention.'
+        }, {
+            id: 'p14',
+            name: 'Coromandel',
+            brand: 'Chanel',
+            price: 365,
+            concentration: 'EDP',
+            notes: ['Patchouli', 'Frankincense', 'Benzoin', 'White Chocolate'],
+            image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=400&h=400&fit=crop&crop=center',
+            stock: 6,
+            description: 'An oriental patchouli with a touch of gourmand sweetness.'
+        }, {
+            id: 'p15',
+            name: 'Molecule 01',
+            brand: 'Escentric Molecules',
+            price: 295,
+            concentration: 'EDP',
+            notes: ['Iso E Super', 'Cedar', 'Vetiver', 'Amber'],
+            image: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&h=400&fit=crop&crop=center',
+            stock: 22,
+            description: 'A minimal, skin-like scent that evolves uniquely on each person.'
+        }, {
+            id: 'p16',
+            name: 'Baccarat Rouge 540',
+            brand: 'Maison Francis Kurkdjian',
+            price: 525,
+            concentration: 'EDP',
+            notes: ['Jasmine', 'Saffron', 'Amber', 'Cedar'],
+            image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&h=400&fit=crop&crop=center',
+            stock: 4,
+            description: 'A luminous, airy scent with an addictive, crystalline sweetness.'
+        }, {
+            id: 'p17',
+            name: 'Neroli Portofino',
+            brand: 'Tom Ford',
+            price: 380,
+            concentration: 'EDP',
+            notes: ['Neroli', 'Bergamot', 'Lemon', 'Jasmine'],
+            image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=400&h=400&fit=crop&crop=center',
+            stock: 13,
+            description: 'A Mediterranean summer in a bottle – bright and citrusy.'
+        }, {
+            id: 'p18',
+            name: 'La Nuit de L\'Homme',
+            brand: 'Yves Saint Laurent',
+            price: 310,
+            concentration: 'EDP',
+            notes: ['Cardamom', 'Cedar', 'Vetiver', 'Bergamot'],
+            image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=400&h=400&fit=crop&crop=center',
+            stock: 17,
+            description: 'A sensual, mysterious fragrance for the night.'
+        }, {
+            id: 'p19',
+            name: 'Reflection Man',
+            brand: 'Amouage',
+            price: 460,
+            concentration: 'EDP',
+            notes: ['Jasmine', 'Neroli', 'Sandalwood', 'Patchouli'],
+            image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=400&h=400&fit=crop&crop=center',
+            stock: 7,
+            description: 'A refined, elegant scent with a floral and woody harmony.'
+        }, {
+            id: 'p20',
+            name: 'Black Orchid',
+            brand: 'Tom Ford',
+            price: 390,
+            concentration: 'EDP',
+            notes: ['Black Truffle', 'Ylang-Ylang', 'Orchid', 'Patchouli'],
+            image: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&h=400&fit=crop&crop=center',
+            stock: 10,
+            description: 'A dark, opulent floral with a velvety, gourmand depth.'
+        }];
 
-      // إعادة تحميل القائمة ومسح الحقول
-      loadProducts();
-      document.getElementById('addProductForm').reset();
-    });
-    // === إدارة الطلبات ===
-const ordersListDiv = document.getElementById('ordersList');
+        // ─── CONTEXT: ProductContext ─────────────────────────────────────────────
 
-function loadOrders() {
-  onValue(ref(db, 'orders'), (snapshot) => {
-    const data = snapshot.val();
-    ordersListDiv.innerHTML = '';
-    if (data) {
-      // ترتيب الطلبات من الأحدث للأقدم
-      const sortedKeys = Object.keys(data).sort((a, b) => {
-        return new Date(data[b].createdAt) - new Date(data[a].createdAt);
-      });
-      
-      sortedKeys.forEach(key => {
-        const order = data[key];
-        const statusLabels = {
-          pending: '⏳ قيد المراجعة',
-          shipped: '🚚 تم الشحن'
+        const ProductContext = createContext(null);
+
+        const productReducer = (state, action) => {
+            switch (action.type) {
+                case 'SET_PRODUCTS':
+                    return { ...state, products: action.payload, loading: false };
+                case 'ADD_PRODUCT':
+                    return { ...state, products: [action.payload, ...state.products] };
+                case 'UPDATE_PRODUCT':
+                    return {
+                        ...state,
+                        products: state.products.map(p =>
+                            p.id === action.payload.id ? action.payload : p
+                        )
+                    };
+                case 'DELETE_PRODUCT':
+                    return {
+                        ...state,
+                        products: state.products.filter(p => p.id !== action.payload)
+                    };
+                case 'SET_LOADING':
+                    return { ...state, loading: action.payload };
+                case 'SET_FILTERS':
+                    return { ...state, filters: { ...state.filters, ...action.payload } };
+                case 'RESET_FILTERS':
+                    return { ...state, filters: { brand: '', concentration: '', notes: '' } };
+                default:
+                    return state;
+            }
         };
-        const statusColor = {
-          pending: '#f59e0b',
-          shipped: '#10b981'
+
+        // Simulated API delay
+        const delay = (ms = 600) => new Promise(resolve => setTimeout(resolve, ms));
+
+        const ProductProvider = ({ children }) => {
+            const [state, dispatch] = useReducer(productReducer, {
+                products: [],
+                loading: true,
+                filters: { brand: '', concentration: '', notes: '' }
+            });
+
+            // Load initial data
+            useEffect(() => {
+                const loadProducts = async () => {
+                    await delay(400);
+                    dispatch({ type: 'SET_PRODUCTS', payload: INITIAL_PERFUMES });
+                };
+                loadProducts();
+            }, []);
+
+            // CRUD operations (simulated API)
+            const addProduct = useCallback(async (product) => {
+                await delay(500);
+                const newProduct = {
+                    ...product,
+                    id: 'p' + Date.now(),
+                    stock: product.stock || 10
+                };
+                dispatch({ type: 'ADD_PRODUCT', payload: newProduct });
+                return newProduct;
+            }, []);
+
+            const updateProduct = useCallback(async (product) => {
+                await delay(500);
+                dispatch({ type: 'UPDATE_PRODUCT', payload: product });
+                return product;
+            }, []);
+
+            const deleteProduct = useCallback(async (id) => {
+                await delay(400);
+                dispatch({ type: 'DELETE_PRODUCT', payload: id });
+                return id;
+            }, []);
+
+            const setFilters = useCallback((filters) => {
+                dispatch({ type: 'SET_FILTERS', payload: filters });
+            }, []);
+
+            const resetFilters = useCallback(() => {
+                dispatch({ type: 'RESET_FILTERS' });
+            }, []);
+
+            // Derived: filtered products
+            const filteredProducts = useMemo(() => {
+                const { brand, concentration, notes } = state.filters;
+                return state.products.filter(p => {
+                    const matchBrand = !brand || p.brand.toLowerCase().includes(brand.toLowerCase());
+                    const matchConcentration = !concentration || p.concentration === concentration;
+                    const matchNotes = !notes || p.notes.some(n => n.toLowerCase().includes(notes.toLowerCase()));
+                    return matchBrand && matchConcentration && matchNotes;
+                });
+            }, [state.products, state.filters]);
+
+            const value = {
+                products: state.products,
+                filteredProducts,
+                loading: state.loading,
+                filters: state.filters,
+                addProduct,
+                updateProduct,
+                deleteProduct,
+                setFilters,
+                resetFilters
+            };
+
+            return (
+                <ProductContext.Provider value={value}>
+                    {children}
+                </ProductContext.Provider>
+            );
         };
-        
-        const div = document.createElement('div');
-        div.style.cssText = 'background: white; padding: 20px; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 15px; align-items: center;';
-        div.innerHTML = `
-          <div>
-            <strong>${order.customerName}</strong>
-            <div style="font-size: 14px; color: #666;">${order.productName} × ${order.quantity}</div>
-            <div style="font-size: 14px; color: #666;">📞 ${order.phone}</div>
-            <div style="font-size: 14px; color: #666;">📍 ${order.address}</div>
-            ${order.notes ? `<div style="font-size: 14px; color: #888;">📝 ${order.notes}</div>` : ''}
-          </div>
-          <div style="font-weight: 700;">${order.totalPrice} ج.م</div>
-          <div>
-            <select data-id="${key}" class="order-status-select" style="padding: 6px 12px; border-radius: 20px; border: 2px solid ${statusColor[order.status] || '#ddd'}; background: ${statusColor[order.status] || '#f8f8f8'}20; font-weight: 600; color: ${statusColor[order.status] || '#333'};">
-              <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>⏳ قيد المراجعة</option>
-              <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>🚚 تم الشحن</option>
-            </select>
-          </div>
-          <div style="font-size: 13px; color: #999;">${new Date(order.createdAt).toLocaleString('ar-EG')}</div>
-          <button data-id="${key}" class="delete-order-btn" style="background: #ff6b6b; color: white; border: none; border-radius: 8px; padding: 6px 14px; cursor: pointer;">🗑️</button>
-        `;
-        ordersListDiv.appendChild(div);
-      });
 
-      // مستمعي تغيير الحالة
-      document.querySelectorAll('.order-status-select').forEach(select => {
-        select.addEventListener('change', async (e) => {
-          const id = e.target.dataset.id;
-          const newStatus = e.target.value;
-          await update(ref(db, `orders/${id}`), { status: newStatus });
-        });
-      });
+        const useProducts = () => {
+            const ctx = useContext(ProductContext);
+            if (!ctx) throw new Error('useProducts must be used within ProductProvider');
+            return ctx;
+        };
 
-      // مستمعي حذف الطلب
-      document.querySelectorAll('.delete-order-btn').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          if (confirm('تأكيد حذف هذا الطلب؟')) {
-            await remove(ref(db, `orders/${btn.dataset.id}`));
-          }
-        });
-      });
-    } else {
-      ordersListDiv.innerHTML = '<p style="grid-column:1/-1; text-align:center; color: #999;">لا توجد طلبات حالياً</p>';
-    }
-  });
-}
+        // ─── CONTEXT: CartContext ────────────────────────────────────────────────
 
-loadOrders();
-  </script>
+        const CartContext = createContext(null);
+
+        const cartReducer = (state, action) => {
+            switch (action.type) {
+                case 'ADD_ITEM': {
+                    const existing = state.items.find(item => item.id === action.payload.id);
+                    if (existing) {
+                        return {
+                            ...state,
+                            items: state.items.map(item =>
+                                item.id === action.payload.id ?
+                                { ...item, quantity: item.quantity + 1 } :
+                                item
+                            )
+                        };
+                    }
+                    return {
+                        ...state,
+                        items: [...state.items, { ...action.payload, quantity: 1 }]
+                    };
+                }
+                case 'REMOVE_ITEM':
+                    return {
+                        ...state,
+                        items: state.items.filter(item => item.id !== action.payload)
+                    };
+                case 'UPDATE_QUANTITY':
+                    return {
+                        ...state,
+                        items: state.items.map(item =>
+                            item.id === action.payload.id ?
+                            { ...item, quantity: Math.max(1, action.payload.quantity) } :
+                            item
+                        )
+                    };
+                case 'CLEAR_CART':
+                    return { ...state, items: [] };
+                case 'TOGGLE_CART':
+                    return { ...state, isOpen: !state.isOpen };
+                case 'CLOSE_CART':
+                    return { ...state, isOpen: false };
+                default:
+                    return state;
+            }
+        };
+
+        const CartProvider = ({ children }) => {
+            const [state, dispatch] = useReducer(cartReducer, {
+                items: [],
+                isOpen: false
+            });
+
+            const totalItems = useMemo(() =>
+                state.items.reduce((sum, item) => sum + item.quantity, 0),
+                [state.items]
+            );
+
+            const totalPrice = useMemo(() =>
+                state.items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+                [state.items]
+            );
+
+            const addItem = useCallback((product) => {
+                dispatch({ type: 'ADD_ITEM', payload: product });
+            }, []);
+
+            const removeItem = useCallback((id) => {
+                dispatch({ type: 'REMOVE_ITEM', payload: id });
+            }, []);
+
+            const updateQuantity = useCallback((id, quantity) => {
+                dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } });
+            }, []);
+
+            const clearCart = useCallback(() => {
+                dispatch({ type: 'CLEAR_CART' });
+            }, []);
+
+            const toggleCart = useCallback(() => {
+                dispatch({ type: 'TOGGLE_CART' });
+            }, []);
+
+            const closeCart = useCallback(() => {
+                dispatch({ type: 'CLOSE_CART' });
+            }, []);
+
+            const value = {
+                items: state.items,
+                isOpen: state.isOpen,
+                totalItems,
+                totalPrice,
+                addItem,
+                removeItem,
+                updateQuantity,
+                clearCart,
+                toggleCart,
+                closeCart
+            };
+
+            return (
+                <CartContext.Provider value={value}>
+                    {children}
+                </CartContext.Provider>
+            );
+        };
+
+        const useCart = () => {
+            const ctx = useContext(CartContext);
+            if (!ctx) throw new Error('useCart must be used within CartProvider');
+            return ctx;
+        };
+
+        // ─── COMPONENTS ────────────────────────────────────────────────────────────
+
+        // ── Navbar ──
+        const Navbar = () => {
+            const { totalItems, toggleCart } = useCart();
+            const location = useLocation();
+            const isAdmin = location.pathname === '/admin';
+
+            if (isAdmin) return null;
+
+            return (
+                <motion.nav
+                    initial={{ y: -80, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    className="fixed top-0 left-0 right-0 z-50 px-6 py-4 glass border-b border-gold/10"
+                >
+                    <div className="max-w-7xl mx-auto flex items-center justify-between">
+                        <Link to="/" className="flex items-center gap-3 group">
+                            <span className="text-2xl font-bold tracking-widest text-gold group-hover:scale-105 transition-transform">
+                                CMD
+                            </span>
+                            <span className="text-xs uppercase tracking-[0.3em] text-white/40 font-light">
+                                Fragrances
+                            </span>
+                        </Link>
+
+                        <div className="flex items-center gap-6">
+                            <Link
+                                to="/admin"
+                                className="text-sm text-white/40 hover:text-gold transition-colors uppercase tracking-wider"
+                            >
+                                Admin
+                            </Link>
+                            <button
+                                onClick={toggleCart}
+                                className="relative p-2 rounded-full glass-light hover:border-gold/30 transition-all"
+                            >
+                                <svg className="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                {totalItems > 0 && (
+                                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-gold rounded-full text-[10px] font-bold text-black flex items-center justify-center">
+                                        {totalItems}
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </motion.nav>
+            );
+        };
+
+        // ── Hero Section ──
+        const HeroSection = () => {
+            const { scrollY } = useScroll();
+            const y = useTransform(scrollY, [0, 500], [0, 150]);
+            const opacity = useTransform(scrollY, [0, 400], [1, 0.3]);
+            const scale = useTransform(scrollY, [0, 400], [1, 0.95]);
+
+            return (
+                <motion.section
+                    style={{ y, opacity, scale }}
+                    className="relative min-h-screen flex items-center justify-center overflow-hidden px-6 pt-24 pb-16"
+                >
+                    {/* Background glow */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gold/5 blur-[120px] pointer-events-none" />
+                    <div className="absolute top-1/3 right-0 w-[400px] h-[400px] rounded-full bg-neon-purple/5 blur-[100px] pointer-events-none" />
+
+                    <div className="max-w-6xl mx-auto text-center relative z-10">
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
+                            className="inline-block mb-6 px-6 py-2 rounded-full glass-light border border-gold/10"
+                        >
+                            <span className="text-xs uppercase tracking-[0.3em] text-gold font-light">
+                                The Art of Scent
+                            </span>
+                        </motion.div>
+
+                        <motion.h1
+                            initial={{ opacity: 0, y: 40 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.9, delay: 0.3 }}
+                            className="text-5xl sm:text-7xl md:text-8xl font-bold leading-[1.1] tracking-tight"
+                        >
+                            <span className="hero-gradient-text">Luxury</span>
+                            <br />
+                            <span className="text-white/90">in Every Drop</span>
+                        </motion.h1>
+
+                        <motion.p
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.5 }}
+                            className="mt-6 max-w-2xl mx-auto text-white/50 text-lg font-light leading-relaxed"
+                        >
+                            Discover an exquisite collection of the world's most
+                            prestigious fragrances, curated for those who appreciate
+                            the finer things.
+                        </motion.p>
+
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.6, delay: 0.7 }}
+                            className="mt-10 flex flex-wrap items-center justify-center gap-4"
+                        >
+                            <motion.button
+                                whileHover={{ scale: 1.06 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="px-8 py-4 bg-gold text-black font-semibold rounded-full tracking-wide shadow-glow-gold hover:shadow-gold/30 transition-shadow"
+                            >
+                                Explore Collection
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.06 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="px-8 py-4 glass-light border border-white/10 rounded-full text-white/80 font-medium hover:border-gold/30 transition-colors"
+                            >
+                                Discover Our Story
+                            </motion.button>
+                        </motion.div>
+
+                        {/* Floating bottles (CSS only) */}
+                        <div className="absolute -bottom-20 left-10 w-16 h-24 rounded-3xl bg-gold/10 border border-gold/20 float-animation hidden lg:block" />
+                        <div className="absolute top-20 right-10 w-12 h-20 rounded-2xl bg-neon-purple/10 border border-neon-purple/20 float-animation-delayed hidden lg:block" />
+                    </div>
+                </motion.section>
+            );
+        };
+
+        // ── Filter Bar ──
+        const FilterBar = () => {
+            const { filters, setFilters, resetFilters } = useProducts();
+            const brands = [...new Set(INITIAL_PERFUMES.map(p => p.brand))];
+            const concentrations = ['EDP', 'EDT', 'EDC', 'Parfum'];
+
+            return (
+                <div className="flex flex-wrap items-center gap-4 p-4 glass-light rounded-xl border border-white/5">
+                    <select
+                        value={filters.brand}
+                        onChange={(e) => setFilters({ brand: e.target.value })}
+                        className="bg-transparent border border-white/10 rounded-lg px-4 py-2 text-sm text-white/70 focus:border-gold/50 outline-none transition-colors"
+                    >
+                        <option value="">All Brands</option>
+                        {brands.map(b => (
+                            <option key={b} value={b} className="bg-[#0B0C10]">{b}</option>
+                        ))}
+                    </select>
+
+                    <select
+                        value={filters.concentration}
+                        onChange={(e) => setFilters({ concentration: e.target.value })}
+                        className="bg-transparent border border-white/10 rounded-lg px-4 py-2 text-sm text-white/70 focus:border-gold/50 outline-none transition-colors"
+                    >
+                        <option value="">All Concentrations</option>
+                        {concentrations.map(c => (
+                            <option key={c} value={c} className="bg-[#0B0C10]">{c}</option>
+                        ))}
+                    </select>
+
+                    <input
+                        type="text"
+                        placeholder="Search notes..."
+                        value={filters.notes}
+                        onChange={(e) => setFilters({ notes: e.target.value })}
+                        className="bg-transparent border border-white/10 rounded-lg px-4 py-2 text-sm text-white/70 focus:border-gold/50 outline-none transition-colors placeholder:text-white/20"
+                    />
+
+                    <button
+                        onClick={resetFilters}
+                        className="text-xs text-white/30 hover:text-gold transition-colors uppercase tracking-wider"
+                    >
+                        Reset
+                    </button>
+                </div>
+            );
+        };
+
+        // ── Product Card ──
+        const ProductCard = ({ product, onAddToCart }) => {
+            return (
+                <motion.div
+                    layout
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.5 }}
+                    className="product-card group relative bg-white/3 rounded-2xl overflow-hidden border border-white/5 hover:border-gold/20 p-5"
+                >
+                    <div className="relative aspect-square overflow-hidden rounded-xl bg-white/5 mb-4">
+                        <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0B0C10] via-transparent to-transparent opacity-0 group-hover:opacity-60 transition-opacity" />
+                        {product.stock < 5 && (
+                            <span className="absolute top-3 right-3 px-2 py-1 text-[10px] font-bold uppercase bg-red-500/80 text-white rounded-full">
+                                Low Stock
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="space-y-2">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <h3 className="font-semibold text-white/90 text-lg leading-tight group-hover:text-gold transition-colors">
+                                    {product.name}
+                                </h3>
+                                <p className="text-sm text-white/30">{product.brand}</p>
+                            </div>
+                            <span className="text-gold font-bold text-lg">${product.price}</span>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1 mt-1">
+                            {product.notes.slice(0, 3).map(n => (
+                                <span key={n} className="text-[10px] uppercase tracking-wider text-white/20 bg-white/5 px-2 py-0.5 rounded-full">
+                                    {n}
+                                </span>
+                            ))}
+                        </div>
+
+                        <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
+                            <span className="text-xs text-white/20">{product.concentration}</span>
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => onAddToCart(product)}
+                                className="px-4 py-1.5 text-xs font-medium bg-gold/20 text-gold rounded-full hover:bg-gold/30 transition-colors"
+                            >
+                                Add to Cart
+                            </motion.button>
+                        </div>
+                    </div>
+                </motion.div>
+            );
+        };
+
+        // ── Product Grid ──
+        const ProductGrid = () => {
+            const { filteredProducts, loading } = useProducts();
+            const { addItem } = useCart();
+            const [searchTerm, setSearchTerm] = useState('');
+
+            const filtered = useMemo(() => {
+                if (!searchTerm) return filteredProducts;
+                return filteredProducts.filter(p =>
+                    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    p.brand.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }, [filteredProducts, searchTerm]);
+
+            if (loading) {
+                return (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {[...Array(8)].map((_, i) => (
+                            <div key={i} className="animate-pulse bg-white/5 rounded-2xl aspect-[3/4]" />
+                        ))}
+                    </div>
+                );
+            }
+
+            return (
+                <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-light text-white/80 tracking-wide">
+                            Our Collection
+                            <span className="ml-2 text-sm text-white/20 font-normal">
+                                ({filtered.length})
+                            </span>
+                        </h2>
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="bg-transparent border border-white/10 rounded-lg px-4 py-2 text-sm text-white/70 focus:border-gold/50 outline-none transition-colors placeholder:text-white/20 w-48"
+                        />
+                    </div>
+
+                    <FilterBar />
+
+                    <motion.div
+                        layout
+                        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5"
+                    >
+                        <AnimatePresence>
+                            {filtered.map(product => (
+                                <ProductCard
+                                    key={product.id}
+                                    product={product}
+                                    onAddToCart={addItem}
+                                />
+                            ))}
+                        </AnimatePresence>
+                    </motion.div>
+
+                    {filtered.length === 0 && (
+                        <div className="text-center py-16 text-white/20">
+                            No fragrances match your filters.
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // ── Cart Sidebar ──
+        const CartSidebar = () => {
+            const { items, isOpen, closeCart, removeItem, updateQuantity, totalPrice, totalItems } = useCart();
+
+            return (
+                <AnimatePresence>
+                    {isOpen && (
+                        <>
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={closeCart}
+                                className="fixed inset-0 z-[60] modal-overlay"
+                            />
+                            <motion.div
+                                initial={{ x: '100%' }}
+                                animate={{ x: 0 }}
+                                exit={{ x: '100%' }}
+                                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                                className="fixed right-0 top-0 h-full w-full sm:w-[420px] z-[70] glass border-l border-gold/10 shadow-2xl flex flex-col"
+                            >
+                                <div className="flex items-center justify-between p-6 border-b border-white/5">
+                                    <h2 className="text-xl font-light text-white/80 tracking-wide">
+                                        Your Cart
+                                        <span className="ml-2 text-sm text-white/20">({totalItems})</span>
+                                    </h2>
+                                    <button
+                                        onClick={closeCart}
+                                        className="p-2 rounded-full hover:bg-white/5 transition-colors"
+                                    >
+                                        <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto p-6 space-y-4 sidebar-scroll">
+                                    {items.length === 0 ? (
+                                        <div className="text-center py-12 text-white/20">
+                                            Your cart is empty.
+                                            <br />
+                                            <span className="text-sm">Discover our luxury collection.</span>
+                                        </div>
+                                    ) : (
+                                        items.map(item => (
+                                            <motion.div
+                                                key={item.id}
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: 20 }}
+                                                className="flex gap-4 p-3 glass-light rounded-xl border border-white/5"
+                                            >
+                                                <img
+                                                    src={item.image}
+                                                    alt={item.name}
+                                                    className="w-16 h-16 rounded-lg object-cover"
+                                                />
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="font-medium text-white/90 text-sm truncate">{item.name}</h4>
+                                                    <p className="text-xs text-white/30">{item.brand}</p>
+                                                    <div className="flex items-center gap-3 mt-1">
+                                                        <button
+                                                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                            className="w-6 h-6 rounded-full border border-white/10 text-white/40 hover:border-gold/30 hover:text-gold transition-colors text-xs"
+                                                        >
+                                                            −
+                                                        </button>
+                                                        <span className="text-sm text-white/60 w-6 text-center">{item.quantity}</span>
+                                                        <button
+                                                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                            className="w-6 h-6 rounded-full border border-white/10 text-white/40 hover:border-gold/30 hover:text-gold transition-colors text-xs"
+                                                        >
+                                                            +
+                                                        </button>
+                                                        <span className="text-sm text-gold ml-auto">${(item.price * item.quantity).toFixed(2)}</span>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => removeItem(item.id)}
+                                                    className="text-white/20 hover:text-red-400 transition-colors text-xs self-start"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </motion.div>
+                                        ))
+                                    )}
+                                </div>
+
+                                <div className="border-t border-white/5 p-6 space-y-4">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-white/40">Subtotal</span>
+                                        <span className="text-white/80">${totalPrice.toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-white/40">Shipping</span>
+                                        <span className="text-white/40">Calculated at checkout</span>
+                                    </div>
+                                    <div className="flex justify-between text-lg font-bold pt-2 border-t border-white/5">
+                                        <span className="text-white/80">Total</span>
+                                        <span className="text-gold">${totalPrice.toFixed(2)}</span>
+                                    </div>
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="w-full py-3 bg-gold text-black font-semibold rounded-full tracking-wide shadow-glow-gold hover:shadow-gold/20 transition-shadow disabled:opacity-30 disabled:cursor-not-allowed"
+                                        disabled={items.length === 0}
+                                    >
+                                        Checkout
+                                    </motion.button>
+                                </div>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
+            );
+        };
+
+        // ── Admin Sidebar ──
+        const AdminSidebar = () => {
+            const navigate = useNavigate();
+            const location = useLocation();
+
+            const links = [
+                { path: '/admin', label: 'Dashboard', icon: '📊' },
+                { path: '/admin/products', label: 'Products', icon: '🧴' },
+                { path: '/admin/orders', label: 'Orders', icon: '📦' },
+                { path: '/admin/customers', label: 'Customers', icon: '👤' },
+            ];
+
+            return (
+                <aside className="w-56 h-full glass border-r border-gold/10 flex flex-col p-4">
+                    <div className="mb-8 px-2">
+                        <span className="text-gold font-bold text-xl tracking-wider">CMD</span>
+                        <span className="block text-[10px] uppercase tracking-[0.2em] text-white/20 mt-1">Admin Panel</span>
+                    </div>
+                    <nav className="flex-1 space-y-1">
+                        {links.map(link => (
+                            <button
+                                key={link.path}
+                                onClick={() => navigate(link.path)}
+                                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all ${location.pathname === link.path ?
+                                        'bg-gold/10 text-gold border border-gold/20' :
+                                        'text-white/40 hover:text-white/80 hover:bg-white/5'
+                                    }`}
+                            >
+                                <span>{link.icon}</span>
+                                {link.label}
+                            </button>
+                        ))}
+                    </nav>
+                    <div className="pt-4 border-t border-white/5">
+                        <Link
+                            to="/"
+                            className="flex items-center gap-2 text-xs text-white/20 hover:text-gold transition-colors"
+                        >
+                            ← Back to Store
+                        </Link>
+                    </div>
+                </aside>
+            );
+        };
+
+        // ── Admin Dashboard Stats ──
+        const DashboardStats = () => {
+            const { products } = useProducts();
+            const totalSales = products.reduce((sum, p) => sum + p.price * (p.stock || 0), 0);
+            const lowStock = products.filter(p => p.stock < 5).length;
+
+            return (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                    {[
+                        { label: 'Total Revenue', value: `$${totalSales.toLocaleString()}`, icon: '💰', color: 'text-gold' },
+                        { label: 'Active Products', value: products.length, icon: '🧴', color: 'text-white/80' },
+                        { label: 'Low Stock Alert', value: lowStock, icon: '⚠️', color: lowStock > 0 ? 'text-red-400' : 'text-green-400' },
+                    ].map(stat => (
+                        <div key={stat.label} className="glass-light rounded-xl p-5 border border-white/5">
+                            <div className="flex items-center justify-between">
+                                <span className="text-2xl">{stat.icon}</span>
+                                <span className={`text-2xl font-bold ${stat.color}`}>{stat.value}</span>
+                            </div>
+                            <p className="text-sm text-white/30 mt-1">{stat.label}</p>
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
+        // ── Admin Product Table ──
+        const AdminProductTable = () => {
+            const { products, deleteProduct } = useProducts();
+            const [showAddModal, setShowAddModal] = useState(false);
+            const [editingProduct, setEditingProduct] = useState(null);
+            const [confirmDelete, setConfirmDelete] = useState(null);
+
+            const handleDelete = async (id) => {
+                await deleteProduct(id);
+                setConfirmDelete(null);
+            };
+
+            return (
+                <div className="glass-light rounded-xl border border-white/5 p-4">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-light text-white/80">Product Inventory</h3>
+                        <button
+                            onClick={() => setShowAddModal(true)}
+                            className="px-4 py-2 bg-gold text-black text-sm font-medium rounded-full hover:bg-gold-dark transition-colors"
+                        >
+                            + Add Product
+                        </button>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead className="text-white/30 text-xs uppercase tracking-wider border-b border-white/5">
+                                <tr>
+                                    <th className="text-left py-3 px-3">Product</th>
+                                    <th className="text-left py-3 px-3">Brand</th>
+                                    <th className="text-left py-3 px-3">Price</th>
+                                    <th className="text-left py-3 px-3">Stock</th>
+                                    <th className="text-left py-3 px-3">Concentration</th>
+                                    <th className="text-right py-3 px-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {products.map(p => (
+                                    <tr key={p.id} className="admin-row border-b border-white/5 transition-colors">
+                                        <td className="py-3 px-3">
+                                            <div className="flex items-center gap-3">
+                                                <img src={p.image} alt={p.name} className="w-8 h-8 rounded object-cover" />
+                                                <span className="text-white/80 font-medium">{p.name}</span>
+                                            </div>
+                                        </td>
+                                        <td className="py-3 px-3 text-white/50">{p.brand}</td>
+                                        <td className="py-3 px-3 text-gold">${p.price}</td>
+                                        <td className="py-3 px-3">
+                                            <span className={p.stock < 5 ? 'text-red-400' : 'text-white/60'}>
+                                                {p.stock}
+                                            </span>
+                                        </td>
+                                        <td className="py-3 px-3 text-white/40 text-xs">{p.concentration}</td>
+                                        <td className="py-3 px-3 text-right space-x-2">
+                                            <button
+                                                onClick={() => setEditingProduct(p)}
+                                                className="text-xs text-white/30 hover:text-gold transition-colors"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => setConfirmDelete(p.id)}
+                                                className="text-xs text-white/20 hover:text-red-400 transition-colors"
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Add Modal */}
+                    <ProductFormModal
+                        isOpen={showAddModal}
+                        onClose={() => setShowAddModal(false)}
+                        mode="add"
+                    />
+
+                    {/* Edit Modal */}
+                    <ProductFormModal
+                        isOpen={!!editingProduct}
+                        onClose={() => setEditingProduct(null)}
+                        mode="edit"
+                        product={editingProduct}
+                    />
+
+                    {/* Confirm Delete */}
+                    <ConfirmDialog
+                        isOpen={!!confirmDelete}
+                        onClose={() => setConfirmDelete(null)}
+                        onConfirm={() => handleDelete(confirmDelete)}
+                        message="Are you sure you want to delete this product? This action cannot be undone."
+                    />
+                </div>
+            );
+        };
+
+        // ── Product Form Modal ──
+        const ProductFormModal = ({ isOpen, onClose, mode, product }) => {
+            const { addProduct, updateProduct } = useProducts();
+            const [form, setForm] = useState({
+                name: '',
+                brand: '',
+                price: '',
+                concentration: 'EDP',
+                notes: '',
+                image: '',
+                stock: 10,
+                description: ''
+            });
+
+            useEffect(() => {
+                if (mode === 'edit' && product) {
+                    setForm({
+                        name: product.name,
+                        brand: product.brand,
+                        price: product.price,
+                        concentration: product.concentration,
+                        notes: product.notes.join(', '),
+                        image: product.image,
+                        stock: product.stock,
+                        description: product.description || ''
+                    });
+                } else {
+                    setForm({
+                        name: '',
+                        brand: '',
+                        price: '',
+                        concentration: 'EDP',
+                        notes: '',
+                        image: '',
+                        stock: 10,
+                        description: ''
+                    });
+                }
+            }, [mode, product]);
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                const payload = {
+                    ...form,
+                    price: parseFloat(form.price),
+                    stock: parseInt(form.stock),
+                    notes: form.notes.split(',').map(s => s.trim()).filter(Boolean),
+                };
+
+                if (mode === 'add') {
+                    await addProduct(payload);
+                } else {
+                    await updateProduct({ ...payload, id: product.id });
+                }
+                onClose();
+            };
+
+            if (!isOpen) return null;
+
+            return (
+                <div className="fixed inset-0 z-[80] modal-overlay flex items-center justify-center p-4">
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.9, opacity: 0 }}
+                        className="glass rounded-2xl border border-gold/20 w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto sidebar-scroll"
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-xl font-light text-white/80">
+                                {mode === 'add' ? 'Add New Product' : 'Edit Product'}
+                            </h3>
+                            <button onClick={onClose} className="text-white/30 hover:text-white/60">✕</button>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="text-xs text-white/30 uppercase tracking-wider">Name</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={form.name}
+                                        onChange={(e) => setForm({ ...form, name: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/80 focus:border-gold/50 outline-none transition-colors"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs text-white/30 uppercase tracking-wider">Brand</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={form.brand}
+                                        onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/80 focus:border-gold/50 outline-none transition-colors"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="text-xs text-white/30 uppercase tracking-wider">Price ($)</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        step="0.01"
+                                        value={form.price}
+                                        onChange={(e) => setForm({ ...form, price: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/80 focus:border-gold/50 outline-none transition-colors"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs text-white/30 uppercase tracking-wider">Stock</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        value={form.stock}
+                                        onChange={(e) => setForm({ ...form, stock: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/80 focus:border-gold/50 outline-none transition-colors"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-xs text-white/30 uppercase tracking-wider">Concentration</label>
+                                <select
+                                    value={form.concentration}
+                                    onChange={(e) => setForm({ ...form, concentration: e.target.value })}
+                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/80 focus:border-gold/50 outline-none transition-colors"
+                                >
+                                    <option value="EDP">EDP</option>
+                                    <option value="EDT">EDT</option>
+                                    <option value="EDC">EDC</option>
+                                    <option value="Parfum">Parfum</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="text-xs text-white/30 uppercase tracking-wider">Notes (comma separated)</label>
+                                <input
+                                    type="text"
+                                    value={form.notes}
+                                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                                    placeholder="Bergamot, Jasmine, Cedar"
+                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/80 focus:border-gold/50 outline-none transition-colors"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-xs text-white/30 uppercase tracking-wider">Image URL</label>
+                                <input
+                                    type="url"
+                                    value={form.image}
+                                    onChange={(e) => setForm({ ...form, image: e.target.value })}
+                                    placeholder="https://..."
+                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/80 focus:border-gold/50 outline-none transition-colors"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-xs text-white/30 uppercase tracking-wider">Description</label>
+                                <textarea
+                                    value={form.description}
+                                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                                    rows={2}
+                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/80 focus:border-gold/50 outline-none transition-colors resize-none"
+                                />
+                            </div>
+
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    type="submit"
+                                    className="flex-1 py-2.5 bg-gold text-black font-semibold rounded-full text-sm hover:bg-gold-dark transition-colors"
+                                >
+                                    {mode === 'add' ? 'Add Product' : 'Save Changes'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={onClose}
+                                    className="px-6 py-2.5 glass-light border border-white/10 rounded-full text-sm text-white/40 hover:text-white/70 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </motion.div>
+                </div>
+            );
+        };
+
+        // ── Confirm Dialog ──
+        const ConfirmDialog = ({ isOpen, onClose, onConfirm, message }) => {
+            if (!isOpen) return null;
+
+            return (
+                <div className="fixed inset-0 z-[90] modal-overlay flex items-center justify-center p-4">
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.9, opacity: 0 }}
+                        className="glass rounded-2xl border border-gold/20 max-w-sm w-full p-6 text-center"
+                    >
+                        <div className="text-4xl mb-3">⚠️</div>
+                        <p className="text-white/70 text-sm mb-6">{message}</p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={onConfirm}
+                                className="flex-1 py-2 bg-red-500/20 text-red-400 font-medium rounded-full text-sm hover:bg-red-500/30 transition-colors"
+                            >
+                                Delete
+                            </button>
+                            <button
+                                onClick={onClose}
+                                className="flex-1 py-2 glass-light border border-white/10 rounded-full text-sm text-white/40 hover:text-white/70 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            );
+        };
+
+        // ── Admin Dashboard Page ──
+        const AdminDashboard = () => {
+            return (
+                <div className="space-y-6">
+                    <div>
+                        <h1 className="text-2xl font-light text-white/80">Dashboard</h1>
+                        <p className="text-sm text-white/30">Overview of your fragrance empire.</p>
+                    </div>
+                    <DashboardStats />
+                    <AdminProductTable />
+                </div>
+            );
+        };
+
+        // ── Admin Products Page ──
+        const AdminProducts = () => {
+            return (
+                <div className="space-y-6">
+                    <div>
+                        <h1 className="text-2xl font-light text-white/80">Products</h1>
+                        <p className="text-sm text-white/30">Manage your entire fragrance catalog.</p>
+                    </div>
+                    <AdminProductTable />
+                </div>
+            );
+        };
+
+        // ── Admin Layout ──
+        const AdminLayout = ({ children }) => {
+            return (
+                <div className="flex h-screen bg-[#0B0C10]">
+                    <AdminSidebar />
+                    <main className="flex-1 overflow-y-auto p-6 sidebar-scroll">
+                        {children}
+                    </main>
+                </div>
+            );
+        };
+
+        // ── Admin Route Guard ──
+        const AdminRoute = ({ children }) => {
+            // Simulated auth check — always allowed for demo
+            return children;
+        };
+
+        // ── Home Page ──
+        const HomePage = () => {
+            return (
+                <>
+                    <HeroSection />
+                    <div className="max-w-7xl mx-auto px-6 pb-20">
+                        <ProductGrid />
+                    </div>
+                </>
+            );
+        };
+
+        // ── Footer ──
+        const Footer = () => {
+            const location = useLocation();
+            if (location.pathname === '/admin' || location.pathname.startsWith('/admin')) return null;
+
+            return (
+                <footer className="border-t border-white/5 py-10 px-6 mt-10">
+                    <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between text-sm text-white/20">
+                        <div className="flex items-center gap-3">
+                            <span className="text-gold font-bold tracking-wider">CMD</span>
+                            <span className="text-xs uppercase tracking-[0.2em]">Fragrances</span>
+                        </div>
+                        <p className="mt-2 sm:mt-0">© 2026 — The Art of Scent</p>
+                    </div>
+                </footer>
+            );
+        };
+
+        // ─── APP ──────────────────────────────────────────────────────────────────
+
+        const App = () => {
+            return (
+                <BrowserRouter>
+                    <ProductProvider>
+                        <CartProvider>
+                            <div className="min-h-screen bg-[#0B0C10]">
+                                <Navbar />
+                                <CartSidebar />
+
+                                <Routes>
+                                    <Route path="/" element={<HomePage />} />
+                                    <Route
+                                        path="/admin"
+                                        element={
+                                            <AdminRoute>
+                                                <AdminLayout>
+                                                    <AdminDashboard />
+                                                </AdminLayout>
+                                            </AdminRoute>
+                                        }
+                                    />
+                                    <Route
+                                        path="/admin/products"
+                                        element={
+                                            <AdminRoute>
+                                                <AdminLayout>
+                                                    <AdminProducts />
+                                                </AdminLayout>
+                                            </AdminRoute>
+                                        }
+                                    />
+                                    <Route
+                                        path="/admin/orders"
+                                        element={
+                                            <AdminRoute>
+                                                <AdminLayout>
+                                                    <div className="text-white/40 text-center py-20">
+                                                        Orders management coming soon.
+                                                    </div>
+                                                </AdminLayout>
+                                            </AdminRoute>
+                                        }
+                                    />
+                                    <Route
+                                        path="/admin/customers"
+                                        element={
+                                            <AdminRoute>
+                                                <AdminLayout>
+                                                    <div className="text-white/40 text-center py-20">
+                                                        Customer management coming soon.
+                                                    </div>
+                                                </AdminLayout>
+                                            </AdminRoute>
+                                        }
+                                    />
+                                    <Route path="*" element={<Navigate to="/" />} />
+                                </Routes>
+
+                                <Footer />
+                            </div>
+                        </CartProvider>
+                    </ProductProvider>
+                </BrowserRouter>
+            );
+        };
+
+        // ─── MOUNT ──────────────────────────────────────────────────────────────────
+
+        const root = document.getElementById('root');
+        if (root) {
+            createRoot(root).render(<App />);
+        }
+    </script>
 </body>
 </html>
